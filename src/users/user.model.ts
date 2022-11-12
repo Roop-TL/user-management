@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { Role } from 'src/roles/roles.model';
 export const UserSchema = new mongoose.Schema({
   id: { type: String, required: true },
   userFirstName: { type: String, required: true },
@@ -6,7 +7,8 @@ export const UserSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
   userMobile: { type: Array<string>, required: true },
   orgId: { type: String, required: false, default: null },
-  userRole: { type: Array<string>, required: false },
+  //userRole: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
+  userRole: { type: Array<string>, required: false, default: [] },
   isActive: { type: Boolean, required: false, default: true },
   createdAt: { type: Date, required: false, default: Date.now },
   updatedAt: { type: Date, required: false, default: Date.now },

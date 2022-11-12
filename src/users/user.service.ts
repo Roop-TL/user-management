@@ -3,10 +3,15 @@ import { User } from './user.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import shortUUID = require('short-uuid');
+import { Role } from 'src/roles/roles.model';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('Users') private readonly userModel: Model<User>) {}
+  constructor(
+    @InjectModel('Users') private readonly userModel: Model<User>,
+    @InjectModel('Roles') private readonly roleModel: Model<Role>,
+  ) {}
 
   async getAllUsers() {
     const users = await this.userModel.find().exec();
@@ -16,6 +21,7 @@ export class UserService {
       userEmail: user.userEmail,
       userContact: user.userMobile.join(','),
       userOrg: user.orgId,
+      userRole: user.userRole,
     }));
   }
 
@@ -71,6 +77,27 @@ export class UserService {
       throw new NotFoundException(
         'Something went wrong while creating the user',
       );
+    }
+  }
+
+  async assignRole(userId: string, roleId: string) {
+    try {
+      const user = await this.userModel.findOne({ id: userId });
+      const role = await this.roleModel.findOne({ _id: roleId });
+      if (!user || !role) {
+        return "User or role doesn't exists";
+      }
+      const provideRole = role.roleName;
+      if (user.userRole.includes(provideRole)) {
+        return 'The Role has been already assigned to the user';
+      }
+      await this.userModel.updateOne(
+        { id: userId },
+        { $push: { userRole: provideRole } },
+      );
+      return 'Successfully Assigned role to the user!';
+    } catch (error) {
+      throw new BadRequestException('Something went wrong');
     }
   }
 }

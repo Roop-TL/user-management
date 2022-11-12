@@ -1,4 +1,5 @@
 // import { SetMetadata } from '@nestjs/common';
+import { Patch } from '@nestjs/common';
 import { Controller, Body, Post, Get, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -36,8 +37,16 @@ export class UserController {
     return users;
   }
   @Get(':userId')
-  getUser(@Param('userId') userId: string) {
+  async getUser(@Param('userId') userId: string) {
     const user = this.userService.getSingleUser(userId);
     return user;
+  }
+  @Patch(':userId/assignRole')
+  async assignRole(
+    @Param('userId') userId: string,
+    @Body('roleId') roleId: string,
+  ) {
+    const updatedUser = await this.userService.assignRole(userId, roleId);
+    return updatedUser;
   }
 }

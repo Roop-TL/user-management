@@ -1,4 +1,4 @@
-import { Body, Post, Controller, Get } from '@nestjs/common';
+import { Body, Post, Controller, Get, Param, Patch } from '@nestjs/common';
 import { RoleService } from './roles.service';
 
 @Controller('roles')
@@ -7,7 +7,7 @@ export class RoleController {
   @Post('create')
   async createRole(
     @Body('roleName') roleName: string,
-    @Body('permission') permission: string[],
+    @Body('permission') permission: object[],
   ) {
     const createStatus = await this.roleService.createRole(
       roleName,
@@ -22,5 +22,13 @@ export class RoleController {
   async getRoles() {
     const res = await this.roleService.getRoles();
     return res;
+  }
+  @Patch(':roleId/assignPermission')
+  async assignPermission(
+    @Param('roleId') roleId: string,
+    @Body('permissionId') permissionId: string,
+  ) {
+    const updatedRole = this.roleService.assignPermission(roleId, permissionId);
+    return updatedRole;
   }
 }
